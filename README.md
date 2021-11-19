@@ -36,7 +36,7 @@ cuda==10.2, torch==1.6.0, torchvision==0.7.0, python==3.7.3
 
 3. Install other needed packages.
 ```sh
-pip install -r requirments.txt
+pip install -r requirements.txt
 ```
 
 4. Data preparation.

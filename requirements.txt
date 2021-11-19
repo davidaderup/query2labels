@@ -1,0 +1,11 @@
+tqdm
+einops
+addict
+yapf
+timm
+termcolor
+randaugment
+pycocotools
+yapf
+# Doesnt always work
+# inplace_abn
