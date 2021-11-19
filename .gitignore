@@ -21,3 +21,5 @@ subs
 tmp
 *.sub
 __pycache__
+.idea/*
+venv/*
