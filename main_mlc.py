@@ -40,6 +40,7 @@ def parser_args():
     parser.add_argument('--dataset_dir', help='dir of dataset', default='/comp_robot/liushilong/data/COCO14/')
     parser.add_argument('--img_size', default=448, type=int,
                         help='size of input images')
+    parser.add_argument('--keep_only', help='scale down dataset to this portion', default=1.0)
 
     parser.add_argument('--output', metavar='DIR', 
                         help='path to output folder')
@@ -198,7 +199,7 @@ def main():
     torch.cuda.set_device(args.local_rank)
     print('| distributed init (local_rank {}): {}'.format(
         args.local_rank, args.dist_url), flush=True)
-    torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url, 
+    torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url,
                                 world_size=args.world_size, rank=args.rank)
     cudnn.benchmark = True
     

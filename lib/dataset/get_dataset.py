@@ -37,12 +37,14 @@ def get_datasets(args):
             anno_path=osp.join(dataset_dir, 'annotations/instances_train2014.json'),
             input_transform=train_data_transform,
             labels_path='data/coco/train_label_vectors_coco14.npy',
+            keep_only=args.keep_only
         )
         val_dataset = CoCoDataset(
             image_dir=osp.join(dataset_dir, 'val2014'),
             anno_path=osp.join(dataset_dir, 'annotations/instances_val2014.json'),
             input_transform=test_data_transform,
             labels_path='data/coco/val_label_vectors_coco14.npy',
+            keep_only=args.keep_only
         )    
 
     else:
