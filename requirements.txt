@@ -7,5 +7,7 @@ termcolor
 randaugment
 pycocotools
 yapf
+tensorboard
+scipy
 # Doesnt always work
 # inplace_abn
