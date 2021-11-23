@@ -19,7 +19,7 @@ class CoCoDataset(data.Dataset):
                     used_category=-1,
                     keep_only = 1.0):
         self.coco = dset.CocoDetection(root=image_dir, annFile=anno_path)
-        self.keep_only = keep_only
+        self.keep_only = float(keep_only)
         # with open('./data/coco/category.json','r') as load_category:
         #     self.category_map = json.load(load_category)
         self.category_map = category_map
