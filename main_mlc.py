@@ -36,7 +36,7 @@ from utils.slconfig import get_raw_dict
 
 def parser_args():
     parser = argparse.ArgumentParser(description='Query2Label MSCOCO Training')
-    parser.add_argument('--dataname', help='dataname', default='coco14', choices=['coco14'])
+    parser.add_argument('--dataname', help='dataname', default='coco14', choices=['coco14', 'pim'])
     parser.add_argument('--dataset_dir', help='dir of dataset', default='/comp_robot/liushilong/data/COCO14/')
     parser.add_argument('--img_size', default=448, type=int,
                         help='size of input images')
