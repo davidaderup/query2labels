@@ -156,6 +156,11 @@ def parser_args():
                         help='apply early stop')
     parser.add_argument('--kill-stop', action='store_true', default=False,
                         help='apply early stop')
+
+    # PIM specific args
+    parser.add_argument('--target-col', default=None, help='column in pim to use as target')
+    parser.add_argument('--is_multilabel', default=False, help='multilabel flag for pim')
+
     args = parser.parse_args()
     return args
 
