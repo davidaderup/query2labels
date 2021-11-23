@@ -1,8 +1,11 @@
+import pandas as pd
 import torchvision.transforms as transforms
 from dataset.cocodataset import CoCoDataset
+from dataset.pimdataset import AttributeDataset
 from utils.cutout import SLCutoutPIL
 from randaugment import RandAugment
 import os.path as osp
+from sklearn.model_selection import train_test_split
 
 def get_datasets(args):
     if args.orid_norm:
@@ -45,8 +48,34 @@ def get_datasets(args):
             input_transform=test_data_transform,
             labels_path='data/coco/val_label_vectors_coco14.npy',
             keep_only=args.keep_only
-        )    
+        )
+    elif args.dataname == 'pim':
+        dataset_dir = args.dataset_dir
+        df = pd.read_csv(dataset_dir)
 
+        X_train, X_test, y_train, y_test = train_test_split(
+            df.drop(args.target_col, axis=1),
+            df[args.target_col],
+            test_size=0.1,
+            stratify=df[args.target_col] if not args.is_multilabel else None,
+        )
+
+        train_dataset = AttributeDataset(
+            castors=X_train["castors"],
+            labels=y_train,
+            inference=False,
+            multilabel=args.is_multilabel,
+            n_classes=args.num_class,
+            transform=train_data_transform
+        )
+        val_dataset = AttributeDataset(
+            castors=X_test["castors"],
+            labels=y_test,
+            inference=False,
+            multilabel=args.is_multilabel,
+            n_classes=args.num_class,
+            transform=test_data_transform
+        )
     else:
         raise NotImplementedError("Unknown dataname %s" % args.dataname)
 

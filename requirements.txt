@@ -9,5 +9,7 @@ pycocotools
 yapf
 tensorboard
 scipy
+pandas
+scikit-learn
 # Doesnt always work
 # inplace_abn
