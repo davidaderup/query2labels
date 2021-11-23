@@ -40,7 +40,7 @@ def parser_args():
     parser.add_argument('--dataset_dir', help='dir of dataset', default='/comp_robot/liushilong/data/COCO14/')
     parser.add_argument('--img_size', default=448, type=int,
                         help='size of input images')
-    parser.add_argument('--keep_only', help='scale down dataset to this portion', default=1.0, type=float)
+    parser.add_argument('--keep_only', help='scale down dataset to this portion', default=0.01, type=float)
 
     parser.add_argument('--output', metavar='DIR', 
                         help='path to output folder')
