@@ -43,8 +43,8 @@ class AttributeDataset(data.Dataset):
 
         print("reading images for training")
         self.img_list = []
-        for _, castor in self.castors.items():
-            img_path = os.path.join(self.img_path, f"{castor}.npy")
+        for idx, castor in self.castors.items():
+            img_path = os.path.join(self.img_path, f"{self.castors.iat[idx]}.npy")
             img = np.load(img_path)
             self.img_list.append(img)
         if not inference and labels is None:
