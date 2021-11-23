@@ -54,30 +54,30 @@ class AttributeDataset(data.Dataset):
         length: int = self.castors.shape[0]
         return length
 
-    def __getitem__(self, idx: Union[int, torch.Tensor]) -> Tuple[Tensor, Tensor]:
+    def __getitem__(self, index: Union[int, torch.Tensor]) -> Tuple[Tensor, Tensor]:
 
         if self.labels is None:
             raise AttributeError("labels is None, please check the parameter value.")
         if self.n_classes is None:
             raise AttributeError("n_classes is None, please check the parameter value.")
 
-        if isinstance(idx, torch.Tensor):
-            idx = int(idx.item())
+        if isinstance(index, torch.Tensor):
+            index = int(index.item())
         #img_path = os.path.join(self.img_path, f"{self.castors.iat[idx]}.npy")
 
         #img = np.load(img_path)
         if self.transform:
-            img = self.transform(self.img_list[idx])
+            img = self.transform(self.img_list[index])
 
         if self.multilabel:
             label = torch.zeros(self.n_classes)
             if not self.inference:
-                label[self.labels.iat[idx]] = 1
+                label[self.labels.iat[index]] = 1
         else:
             if self.inference:
                 label = torch.tensor(0)
             else:
-                label = torch.tensor(self.labels.iat[idx])
+                label = torch.tensor(self.labels.iat[index])
 
         return img, label
 
