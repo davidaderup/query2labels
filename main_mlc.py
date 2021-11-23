@@ -204,23 +204,23 @@ def main():
     torch.cuda.set_device(args.local_rank)
     print('| distributed init (local_rank {}): {}'.format(
         args.local_rank, args.dist_url), flush=True)
-    torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url,
-                                world_size=args.world_size, rank=args.rank)
+    #torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url,
+    #                            world_size=args.world_size, rank=args.rank)
     cudnn.benchmark = True
     
 
     os.makedirs(args.output, exist_ok=True)
-    logger = setup_logger(output=args.output, distributed_rank=dist.get_rank(), color=False, name="Q2L")
+    logger = setup_logger(output=args.output, distributed_rank=0, color=False, name="Q2L")
     logger.info("Command: "+' '.join(sys.argv))
-    if dist.get_rank() == 0:
+    if True:
         path = os.path.join(args.output, "config.json")
         with open(path, 'w') as f:
             json.dump(get_raw_dict(args), f, indent=2)
         logger.info("Full config saved to {}".format(path))
 
-    logger.info('world size: {}'.format(dist.get_world_size()))
-    logger.info('dist.get_rank(): {}'.format(dist.get_rank()))
-    logger.info('local_rank: {}'.format(args.local_rank))
+    #logger.info('world size: {}'.format(dist.get_world_size()))
+    #logger.info('dist.get_rank(): {}'.format(dist.get_rank()))
+    #logger.info('local_rank: {}'.format(args.local_rank))
 
     return main_worker(args, logger)
 
@@ -231,7 +231,7 @@ def main_worker(args, logger):
     model = build_q2l(args)
     model = model.cuda()
     ema_m = ModelEma(model, args.ema_decay) # 0.9997
-    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], broadcast_buffers=False)
+    # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], broadcast_buffers=False)
 
     # criterion
     criterion = models.aslloss.AsymmetricLossOptimized(
@@ -263,16 +263,16 @@ def main_worker(args, logger):
 
 
     # tensorboard
-    if dist.get_rank() == 0:
-        summary_writer = SummaryWriter(log_dir=args.output)
-    else:
-        summary_writer = None
+    #if dist.get_rank() == 0:
+    #    summary_writer = SummaryWriter(log_dir=args.output)
+    #else:
+    summary_writer = None
 
     # optionally resume from a checkpoint
     if args.resume:
         if os.path.isfile(args.resume):
             logger.info("=> loading checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume, map_location=torch.device(dist.get_rank()))
+            checkpoint = torch.load(args.resume, map_location=torch.device(0))
 
             if 'state_dict' in checkpoint:
                 state_dict = clean_state_dict(checkpoint['state_dict'])
@@ -297,13 +297,15 @@ def main_worker(args, logger):
     # Data loading code
     train_dataset, val_dataset = get_datasets(args)
 
-    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
-    assert args.batch_size // dist.get_world_size() == args.batch_size / dist.get_world_size(), 'Batch size is not divisible by num of gpus.'
+    #train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+    train_sampler = torch.utils.data.RandomSampler(train_dataset)
+    #assert args.batch_size // dist.get_world_size() == args.batch_size / dist.get_world_size(), 'Batch size is not divisible by num of gpus.'
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size // dist.get_world_size(), shuffle=(train_sampler is None),
+        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
         num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True)
     
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_dataset, shuffle=False)
+    val_sampler = torch.utils.data.Sampler(val_dataset)
     val_loader = torch.utils.data.DataLoader(
         val_dataset, batch_size=args.batch_size // dist.get_world_size(), shuffle=False,
         num_workers=args.workers, pin_memory=True, sampler=val_sampler)
@@ -400,7 +402,7 @@ def main_worker(args, logger):
             logger.info("{} | Set best mAP {} in ep {}".format(epoch, best_mAP, best_epoch))
             logger.info("   | best regular mAP {} in ep {}".format(best_regular_mAP, best_regular_epoch))
 
-            if dist.get_rank() == 0:
+            if True:
                 save_checkpoint({
                     'epoch': epoch + 1,
                     'backbone': args.backbone,
@@ -427,7 +429,7 @@ def main_worker(args, logger):
                 if best_epoch >= 0 and epoch - max(best_epoch, best_regular_epoch) > 8:
                     if len(ema_mAP_list) > 1 and ema_mAP_list[-1] < best_ema_mAP:
                         logger.info("epoch - best_epoch = {}, stop!".format(epoch - best_epoch))
-                        if dist.get_rank() == 0 and args.kill_stop:
+                        if 0 == 0 and args.kill_stop:
                             filename = sys.argv[0].split(' ')[0].strip()
                             killedlist = kill_process(filename, os.getpid())
                             logger.info("Kill all process of {}: ".format(filename) + " ".join(killedlist)) 
@@ -500,7 +502,7 @@ def train(train_loader, model, ema_m, criterion, optimizer, scheduler, epoch, ar
         batch_time.update(time.time() - end)
         end = time.time()
         speed_gpu.update(images.size(0) / batch_time.val, batch_time.val)
-        speed_all.update(images.size(0) * dist.get_world_size() / batch_time.val, batch_time.val)
+        speed_all.update(images.size(0) * batch_time.val, batch_time.val)
 
         if i % args.print_freq == 0:
             progress.display(i, logger)
@@ -558,28 +560,28 @@ def validate(val_loader, model, criterion, args, logger):
             batch_time.update(time.time() - end)
             end = time.time()
 
-            if i % args.print_freq == 0 and dist.get_rank() == 0:
+            if i % args.print_freq == 0 and 0 == 0:
                 progress.display(i, logger)
 
         logger.info('=> synchronize...')
-        if dist.get_world_size() > 1:
-            dist.barrier()
+        #if dist.get_world_size() > 1:
+        #    dist.barrier()
         loss_avg, = map(
-            _meter_reduce if dist.get_world_size() > 1 else lambda x: x.avg,
+            _meter_reduce if 1 > 1 else lambda x: x.avg,
             [losses]
         )
         
         # import ipdb; ipdb.set_trace()
         # calculate mAP
         saved_data = torch.cat(saved_data, 0).numpy()
-        saved_name = 'saved_data_tmp.{}.txt'.format(dist.get_rank())
+        saved_name = 'saved_data_tmp.{}.txt'.format(0)
         np.savetxt(os.path.join(args.output, saved_name), saved_data)
-        if dist.get_world_size() > 1:
-            dist.barrier()
+        #if dist.get_world_size() > 1:
+        #    dist.barrier()
 
-        if dist.get_rank() == 0:
+        if 0 == 0:
             print("Calculating mAP:")
-            filenamelist = ['saved_data_tmp.{}.txt'.format(ii) for ii in range(dist.get_world_size())]
+            filenamelist = ['saved_data_tmp.{}.txt'.format(ii) for ii in range(0)]
             metric_func = voc_mAP                
             mAP, aps = metric_func([os.path.join(args.output, _filename) for _filename in filenamelist], args.num_class, return_each=True)
             
@@ -588,8 +590,8 @@ def validate(val_loader, model, criterion, args, logger):
         else:
             mAP = 0
 
-        if dist.get_world_size() > 1:
-            dist.barrier()
+        #if dist.get_world_size() > 1:
+        #    dist.barrier()
 
     return loss_avg, mAP
 
