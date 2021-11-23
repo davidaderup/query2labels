@@ -204,8 +204,8 @@ def main():
     torch.cuda.set_device(args.local_rank)
     print('| distributed init (local_rank {}): {}'.format(
         args.local_rank, args.dist_url), flush=True)
-    #torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url,
-    #                            world_size=args.world_size, rank=args.rank)
+    torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url,
+                                         world_size=args.world_size, rank=args.rank)
     cudnn.benchmark = True
     
 
