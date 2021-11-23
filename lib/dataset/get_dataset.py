@@ -61,7 +61,7 @@ def get_datasets(args):
         )
 
         train_dataset = AttributeDataset(
-            castors=X_train["castors"],
+            castors=X_train["castor"],
             labels=y_train,
             inference=False,
             multilabel=args.is_multilabel,
@@ -69,7 +69,7 @@ def get_datasets(args):
             transform=train_data_transform
         )
         val_dataset = AttributeDataset(
-            castors=X_test["castors"],
+            castors=X_test["castor"],
             labels=y_test,
             inference=False,
             multilabel=args.is_multilabel,
