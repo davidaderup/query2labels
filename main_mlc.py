@@ -204,8 +204,8 @@ def main():
     torch.cuda.set_device(args.local_rank)
     print('| distributed init (local_rank {}): {}'.format(
         args.local_rank, args.dist_url), flush=True)
-    torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url,
-                                world_size=args.world_size, rank=args.rank)
+    #torch.distributed.init_process_group(backend='nccl', init_method=args.dist_url,
+    #                            world_size=args.world_size, rank=args.rank)
     cudnn.benchmark = True
     
 
@@ -231,7 +231,7 @@ def main_worker(args, logger):
     model = build_q2l(args)
     model = model.cuda()
     ema_m = ModelEma(model, args.ema_decay) # 0.9997
-    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], broadcast_buffers=False)
+    model = torch.nn.parallel.DataParallel(model, device_ids=[args.local_rank])
 
     # criterion
     criterion = models.aslloss.AsymmetricLossOptimized(
