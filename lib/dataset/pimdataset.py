@@ -41,6 +41,12 @@ class AttributeDataset(data.Dataset):
         self.transform = transform
         self.img_path = f"{root_path}/images/"
 
+        print("reading images for training")
+        self.img_list = []
+        for _, castor in self.castors.items():
+            img_path = os.path.join(self.img_path, f"{self.castors.iat[idx]}.npy")
+            img = np.load(img_path)
+            self.img_list.append(img)
         if not inference and labels is None:
             raise ValueError("Labels can only be 'None' for inference mode.")
 
@@ -57,11 +63,11 @@ class AttributeDataset(data.Dataset):
 
         if isinstance(idx, torch.Tensor):
             idx = int(idx.item())
-        img_path = os.path.join(self.img_path, f"{self.castors.iat[idx]}.npy")
+        #img_path = os.path.join(self.img_path, f"{self.castors.iat[idx]}.npy")
 
-        img = np.load(img_path)
+        #img = np.load(img_path)
         if self.transform:
-            img = self.transform(img)
+            img = self.transform(self.img_list[idx])
 
         if self.multilabel:
             label = torch.zeros(self.n_classes)
