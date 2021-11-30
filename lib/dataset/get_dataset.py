@@ -24,7 +24,7 @@ def get_datasets(args):
     if args.cutout:
         print("Using Cutout!!!")
         train_data_transform_list.insert(1, SLCutoutPIL(n_holes=args.n_holes, length=args.length))
-    if args.datanme == "pim":
+    if args.dataname == "pim":
         train_data_transform_list.insert(0, transforms.ToPILImage())
     train_data_transform = transforms.Compose(train_data_transform_list)
 
