@@ -51,7 +51,7 @@ def get_datasets(args):
         )
     elif args.dataname == 'pim':
         dataset_dir = args.dataset_dir
-        df = pd.read_csv(dataset_dir)
+        df = pd.read_csv(dataset_dir, dtype={"castor": str})
 
         X_train, X_test, y_train, y_test = train_test_split(
             df.drop(args.target_col, axis=1),
