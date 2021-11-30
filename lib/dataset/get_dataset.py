@@ -14,25 +14,28 @@ def get_datasets(args):
         # print("mean=[0, 0, 0], std=[1, 1, 1]")
     else:
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
+                                         std=[0.229, 0.224, 0.225])
         # print("mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]")
 
     train_data_transform_list = [transforms.Resize((args.img_size, args.img_size)),
-                                            RandAugment(),
-                                               transforms.ToTensor(),
-                                               normalize]
+                                 RandAugment(),
+                                 transforms.ToTensor(),
+                                 normalize]
     if args.cutout:
         print("Using Cutout!!!")
         train_data_transform_list.insert(1, SLCutoutPIL(n_holes=args.n_holes, length=args.length))
+
+    test_data_transform_list = [transforms.Resize((args.img_size, args.img_size)),
+                                transforms.ToTensor(),
+                                normalize]
+
     if args.dataname == "pim":
         train_data_transform_list.insert(0, transforms.ToPILImage())
+        test_data_transform_list.insert(0, transforms.ToPILImage())
+
+    test_data_transform = transforms.Compose(test_data_transform_list)
     train_data_transform = transforms.Compose(train_data_transform_list)
 
-    test_data_transform = transforms.Compose([
-                                            transforms.Resize((args.img_size, args.img_size)),
-                                            transforms.ToTensor(),
-                                            normalize])
-    
 
     if args.dataname == 'coco' or args.dataname == 'coco14':
         # ! config your data path here.
@@ -88,6 +91,6 @@ def get_datasets(args):
     else:
         raise NotImplementedError("Unknown dataname %s" % args.dataname)
 
-    print("len(train_dataset):", len(train_dataset)) 
+    print("len(train_dataset):", len(train_dataset))
     print("len(val_dataset):", len(val_dataset))
     return train_dataset, val_dataset
