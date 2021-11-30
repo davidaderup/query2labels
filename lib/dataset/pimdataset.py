@@ -31,7 +31,7 @@ class AttributeDataset(data.Dataset):
         multilabel: bool = False,
         n_classes: Optional[int] = None,
         transform: Optional[transforms.Compose] = None,
-        root_path: str = "./",
+        root_path: str = ".",
     ):
         self.castors = castors
         self.labels = labels
