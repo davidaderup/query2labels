@@ -60,6 +60,9 @@ def get_datasets(args):
             stratify=df[args.target_col] if not args.is_multilabel else None,
         )
 
+        X_train = X_train.reset_index()
+        X_test = X_test.reset_index()
+
         train_dataset = AttributeDataset(
             castors=X_train["castor"],
             labels=y_train,
