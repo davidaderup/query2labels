@@ -63,7 +63,11 @@ def get_datasets(args):
         )
 
         X_train = X_train.reset_index()
+        y_train = y_train.reset_index(drop=True)
+        print(y_train)
         X_test = X_test.reset_index()
+        y_test = y_test.reset_index(drop=True)
+        print(y_test)
 
         train_dataset = AttributeDataset(
             castors=X_train["castor"],
