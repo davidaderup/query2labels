@@ -67,7 +67,7 @@ class AttributeDataset(data.Dataset):
 
         img = np.load(img_path)
         if self.transform:
-            img = self.transform(self.img_list[index])
+            img = self.transform(img)
 
         if self.multilabel:
             label = torch.zeros(self.n_classes)
