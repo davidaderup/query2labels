@@ -72,6 +72,7 @@ class AttributeDataset(data.Dataset):
         if self.multilabel:
             label = torch.zeros(self.n_classes)
             if not self.inference:
+                print(self.labels.iat[index])
                 label[self.labels.iat[index]] = 1
         else:
             if self.inference:
