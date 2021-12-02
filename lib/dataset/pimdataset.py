@@ -74,7 +74,10 @@ class AttributeDataset(data.Dataset):
             if not self.inference:
                 print(self.labels.iat[index])
                 print(type(self.labels.iat[index]))
-                label[self.labels.iat[index]] = 1
+                labels = np.array(self.labels.iat[index])
+                print(labels)
+                print(type(labels))
+                label[labels] = 1
         else:
             if self.inference:
                 label = torch.tensor(0)
